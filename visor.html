@@ -1,0 +1,596 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Visor de Código y Proyectos | Raul-DAW</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Librería para colorear el código -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+
+    <style>
+        :root {
+            --principal: #4338ca;
+            --secundario: #312e81;
+            --acento: #14b8a6;
+            --fondo: #f1f5ff;
+            --texto: #263047;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            background: var(--fondo);
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .cabecera {
+            background: linear-gradient(
+                120deg, #312e81, #4338ca, #2563eb
+            );
+            padding: 28px;
+            text-align: center;
+            color: white;
+        }
+
+        .cabecera h1 {
+            color: white;
+            margin: 0 0 10px;
+        }
+
+        .cabecera p {
+            color: #e0e7ff;
+            margin: 0;
+        }
+
+        .contenedor {
+            display: grid;
+            grid-template-columns: 310px minmax(0, 1fr);
+            gap: 22px;
+            max-width: 1450px;
+            padding: 25px;
+            margin: auto;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #dbe4f0;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(67,56,202,0.08);
+        }
+
+        .panel-titulo {
+            background: #f8faff;
+            padding: 16px;
+            font-weight: bold;
+            color: var(--secundario);
+            border-bottom: 1px solid #dbe4f0;
+        }
+
+        .panel-contenido {
+            padding: 16px;
+        }
+
+        .buscador {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .proyecto {
+            padding: 13px;
+            margin-bottom: 9px;
+            background: #f8faff;
+            border: 1px solid #e0e7ff;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--texto);
+        }
+
+        .proyecto:hover,
+        .proyecto.activo {
+            background: #e0e7ff;
+            border-color: var(--principal);
+        }
+
+        .archivo {
+            padding: 11px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: Consolas, monospace;
+            font-size: 12px;
+            overflow-wrap: anywhere;
+            color: #334155;
+        }
+
+        .archivo:hover,
+        .archivo.activo {
+            background: #ccfbf1;
+            color: #115e59;
+        }
+
+        .archivos {
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .visor {
+            min-height: 650px;
+        }
+
+        .barra {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 14px;
+            border-bottom: 1px solid #dbe4f0;
+            background: #f8faff;
+        }
+
+        .ruta {
+            flex: 1;
+            min-width: 140px;
+            font-size: 13px;
+            color: var(--secundario);
+            overflow-wrap: anywhere;
+        }
+
+        .boton {
+            padding: 10px 14px;
+            border: 0;
+            border-radius: 8px;
+            cursor: pointer;
+            background: var(--principal);
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .boton:hover {
+            background: var(--secundario);
+            color: white;
+        }
+
+        .boton-verde {
+            background: #0d9488;
+        }
+
+        .boton-verde:hover {
+            background: #0f766e;
+        }
+
+        .codigo {
+            margin: 0;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 20px;
+            min-height: 550px;
+            max-height: 75vh;
+            overflow: auto;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+            border-radius: 0;
+        }
+
+        .codigo code {
+            font-family: Consolas, monospace;
+            white-space: pre;
+            display: block;
+            background: transparent;
+        }
+
+        .vista-previa {
+            width: 100%;
+            min-height: 600px;
+            border: 0;
+            background: white;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        .mensaje {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+        }
+
+        .pie {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 850px) {
+            .contenedor {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+
+            .visor {
+                min-height: 450px;
+            }
+
+            .cabecera {
+                padding: 22px 12px;
+            }
+
+            .cabecera h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- CABECERA -->
+    <header class="cabecera">
+        <h1>💻 Visor de Código y Proyectos</h1>
+        <p>Repositorio de Raul-DAW | GitHub Pages</p>
+    </header>
+
+    <main class="contenedor">
+
+        <!-- PANEL IZQUIERDO -->
+        <aside>
+
+            <section class="panel">
+                <div class="panel-titulo">
+                    📁 Mis proyectos
+                </div>
+
+                <div class="panel-contenido">
+                    <div id="proyectos">
+                        Cargando proyectos...
+                    </div>
+                </div>
+            </section>
+
+            <br>
+
+            <section class="panel">
+                <div class="panel-titulo">
+                    📂 Explorador de archivos
+                </div>
+
+                <div class="panel-contenido">
+
+                    <input
+                        type="text"
+                        class="buscador"
+                        id="buscar"
+                        placeholder="🔍 Buscar archivos..."
+                    >
+
+                    <div class="archivos" id="archivos">
+                        Selecciona un proyecto.
+                    </div>
+
+                </div>
+            </section>
+
+        </aside>
+
+        <!-- PANEL DERECHO -->
+        <section class="panel visor">
+
+            <div class="barra">
+                <div class="ruta" id="ruta">
+                    Selecciona un archivo
+                </div>
+
+                <button class="boton" id="btn-codigo">
+                    💻 Código
+                </button>
+
+                <button class="boton boton-verde" id="btn-preview">
+                    ▶ Vista previa
+                </button>
+
+                <button class="boton" id="btn-copiar">
+                    📋 Copiar
+                </button>
+
+                <a class="boton"
+                   id="btn-github"
+                   href="https://github.com/Raul-DAW"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    🐙 GitHub
+                </a>
+            </div>
+
+            <div id="estado" class="mensaje">
+                Cargando repositorio...
+            </div>
+
+            <pre class="codigo oculto" id="zona-codigo"><code id="codigo"></code></pre>
+
+            <iframe
+                id="vista"
+                class="vista-previa oculto"
+                title="Vista previa del proyecto"
+                sandbox="allow-scripts allow-forms allow-modals"
+            ></iframe>
+
+        </section>
+
+    </main>
+
+    <footer class="pie">
+        © Raul-DAW | Proyectos y ejercicios de programación
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <script>
+        // TUS DATOS DE GITHUB
+        const usuario = "Raul-DAW";
+        const repositorio = "Raul-DAW.github.io";
+        const rama = "main";
+
+        const api = "https://api.github.com/repos/"
+                  + usuario + "/" + repositorio;
+
+        const archivosGitHub = [];
+        let proyectoActual = "Todos";
+        let archivoActual = "";
+        let codigoActual = "";
+        let modoActual = "codigo";
+
+        const el = id => document.getElementById(id);
+
+        // OBTENER TODOS LOS ARCHIVOS
+        async function cargarRepositorio() {
+            try {
+                const respuesta = await fetch(
+                    api + "/git/trees/" + rama + "?recursive=1"
+                );
+
+                if (!respuesta.ok) {
+                    throw new Error("No se pudo leer el repositorio");
+                }
+
+                const datos = await respuesta.json();
+
+                if (datos.truncated) {
+                    el("estado").textContent =
+                        "Aviso: GitHub no ha devuelto todos los archivos.";
+                }
+
+                archivosGitHub.push(
+                    ...datos.tree.filter(item => item.type === "blob")
+                );
+
+                mostrarProyectos();
+                mostrarArchivos();
+
+                if (archivosGitHub.length > 0) {
+                    cargarArchivo(archivosGitHub[0].path);
+                } else {
+                    mostrarMensaje("Todavía no hay archivos en el repositorio.");
+                }
+
+            } catch (error) {
+                mostrarMensaje("Error: " + error.message);
+            }
+        }
+
+        // MOSTRAR PROYECTOS
+        function mostrarProyectos() {
+            const contenedor = el("proyectos");
+            contenedor.innerHTML = "";
+
+            const grupos = new Set(["Todos"]);
+
+            archivosGitHub.forEach(archivo => {
+                const partes = archivo.path.split("/");
+                grupos.add(
+                    partes.length > 1 ? partes[0] : "Raíz"
+                );
+            });
+
+            grupos.forEach(nombre => {
+                const tarjeta = document.createElement("div");
+                tarjeta.className = "proyecto";
+
+                if (nombre === proyectoActual) {
+                    tarjeta.classList.add("activo");
+                }
+
+                tarjeta.textContent = "📁 " + nombre;
+
+                tarjeta.addEventListener("click", () => {
+                    proyectoActual = nombre;
+                    mostrarProyectos();
+                    mostrarArchivos();
+                });
+
+                contenedor.appendChild(tarjeta);
+            });
+        }
+
+        // MOSTRAR LISTA DE ARCHIVOS
+        function mostrarArchivos() {
+            const contenedor = el("archivos");
+            contenedor.innerHTML = "";
+
+            const busqueda = el("buscar").value.toLowerCase();
+
+            const filtrados = archivosGitHub.filter(archivo => {
+                const partes = archivo.path.split("/");
+
+                const grupo = partes.length > 1
+                    ? partes[0]
+                    : "Raíz";
+
+                const pertenece =
+                    proyectoActual === "Todos" ||
+                    proyectoActual === grupo;
+
+                return pertenece &&
+                    archivo.path.toLowerCase().includes(busqueda);
+            });
+
+            if (filtrados.length === 0) {
+                contenedor.textContent = "No hay archivos.";
+                return;
+            }
+
+            filtrados.forEach(archivo => {
+                const elemento = document.createElement("div");
+
+                elemento.className = "archivo";
+
+                if (archivo.path === archivoActual) {
+                    elemento.classList.add("activo");
+                }
+
+                elemento.textContent = "📄 " + archivo.path;
+
+                elemento.addEventListener("click", () => {
+                    cargarArchivo(archivo.path);
+                });
+
+                contenedor.appendChild(elemento);
+            });
+        }
+
+        // DESCARGAR Y MOSTRAR UN ARCHIVO
+        async function cargarArchivo(ruta) {
+            archivoActual = ruta;
+            el("ruta").textContent = ruta;
+            mostrarArchivos();
+
+            el("btn-github").href =
+                "https://github.com/" + usuario + "/" +
+                repositorio + "/blob/" + rama + "/" +
+                ruta.split("/").map(encodeURIComponent).join("/");
+
+            mostrarMensaje("Cargando " + ruta + "...");
+
+            try {
+                const url = "https://raw.githubusercontent.com/"
+                    + usuario + "/" + repositorio + "/"
+                    + rama + "/"
+                    + ruta.split("/").map(encodeURIComponent).join("/");
+
+                const respuesta = await fetch(url);
+
+                if (!respuesta.ok) {
+                    throw new Error("No se puede abrir el archivo");
+                }
+
+                codigoActual = await respuesta.text();
+
+                const codigo = el("codigo");
+                codigo.textContent = codigoActual;
+                codigo.removeAttribute("data-highlighted");
+                codigo.className = "";
+
+                if (window.hljs) {
+                    hljs.highlightElement(codigo);
+                }
+
+                mostrarCodigo();
+
+            } catch (error) {
+                mostrarMensaje("Error: " + error.message);
+            }
+        }
+
+        // MODO CÓDIGO
+        function mostrarCodigo() {
+            modoActual = "codigo";
+
+            el("estado").classList.add("oculto");
+            el("vista").classList.add("oculto");
+            el("zona-codigo").classList.remove("oculto");
+        }
+
+        // MODO VISTA PREVIA
+        function mostrarPreview() {
+            if (!archivoActual) return;
+
+            let rutaHTML = archivoActual;
+
+            if (!rutaHTML.toLowerCase().endsWith(".html")) {
+                const carpeta = archivoActual.includes("/")
+                    ? archivoActual.substring(
+                        0, archivoActual.lastIndexOf("/") + 1
+                      )
+                    : "";
+
+                rutaHTML = carpeta + "index.html";
+            }
+
+            const existe = archivosGitHub.some(
+                archivo => archivo.path === rutaHTML
+            );
+
+            if (!existe) {
+                alert("Este proyecto no tiene un index.html para ejecutar.");
+                return;
+            }
+
+            const url = "https://" + usuario.toLowerCase()
+                + ".github.io/"
+                + rutaHTML.split("/").map(encodeURIComponent).join("/");
+
+            el("vista").src = url;
+
+            modoActual = "preview";
+            el("estado").classList.add("oculto");
+            el("zona-codigo").classList.add("oculto");
+            el("vista").classList.remove("oculto");
+        }
+
+        // MOSTRAR MENSAJES
+        function mostrarMensaje(texto) {
+            el("estado").textContent = texto;
+            el("estado").classList.remove("oculto");
+            el("zona-codigo").classList.add("oculto");
+            el("vista").classList.add("oculto");
+        }
+
+        // BOTONES
+        el("btn-codigo").addEventListener("click", mostrarCodigo);
+
+        el("btn-preview").addEventListener("click", mostrarPreview);
+
+        el("btn-copiar").addEventListener("click", async () => {
+            if (!archivoActual) return;
+
+            try {
+                await navigator.clipboard.writeText(codigoActual);
+                alert("Código copiado correctamente.");
+            } catch (error) {
+                alert("No se pudo copiar el código.");
+            }
+        });
+
+        el("buscar").addEventListener("input", mostrarArchivos);
+
+        // INICIAR
+        cargarRepositorio();
+    </script>
+
+</body>
+</html>

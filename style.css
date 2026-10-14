@@ -1,0 +1,83 @@
+
+/* Estilos generales */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #edf2ff, #e8f8f5);
+    color: #263047;
+    margin: 0;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+/* Título principal */
+h1 {
+    text-align: center;
+    color: #4338ca;
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+/* Subtítulos */
+h2 {
+    text-align: center;
+    color: #475569;
+}
+
+/* Párrafos */
+p {
+    text-align: center;
+    color: #64748b;
+}
+
+/* Lista de ejercicios */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 30px auto;
+    max-width: 700px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* Tarjetas de ejercicios */
+li a {
+    display: block;
+    text-decoration: none;
+    color: #4338ca;
+    background: white;
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid #dbe4f0;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(67, 56, 202, 0.08);
+    transition: all 0.3s ease;
+}
+
+/* Efecto al pasar el ratón */
+li a:hover {
+    background: #4338ca;
+    color: white;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(67, 56, 202, 0.2);
+}
+
+/* Diseño para móviles */
+@media (max-width: 480px) {
+    ul {
+        grid-template-columns: 1fr;
+    }
+
+    body {
+        padding: 25px 15px;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+    }
+}
